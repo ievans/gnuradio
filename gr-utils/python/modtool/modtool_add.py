@@ -21,13 +21,12 @@
 """ Module to add new blocks """
 
 import os
-import sys
 import re
 from optparse import OptionGroup
 
 from util_functions import append_re_line_sequence, ask_yes_no
 from cmakefile_editor import CMakeFileEditor
-from modtool_base import ModTool
+from modtool_base import ModTool, ModToolException
 from templates import Templates
 from code_generator import get_template
 import Cheetah.Template
@@ -79,8 +78,8 @@ class ModToolAdd(ModTool):
 
         if ((self._skip_subdirs['lib'] and self._info['lang'] == 'cpp')
              or (self._skip_subdirs['python'] and self._info['lang'] == 'python')):
-            print "Missing or skipping relevant subdir."
-            exit(1)
+
+            raise ModToolException('Missing or skipping relevant subdir.')
 
         if self._info['blockname'] is None:
             if len(self.args) >= 2:
@@ -88,8 +87,7 @@ class ModToolAdd(ModTool):
             else:
                 self._info['blockname'] = raw_input("Enter name of block/code (without module name prefix): ")
         if not re.match('[a-zA-Z0-9_]+', self._info['blockname']):
-            print 'Invalid block name.'
-            exit(2)
+            raise ModToolException('Invalid block name.')
         print "Block/code identifier: " + self._info['blockname']
         self._info['fullblockname'] = self._info['modname'] + '_' + self._info['blockname']
         self._info['license'] = self.setup_choose_license()

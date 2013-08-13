@@ -29,6 +29,10 @@ from util_functions import get_modname
 from templates import Templates
 
 
+class ModToolException(Exception):
+    """ Standard exception for modtool. """
+    pass
+
 class ModTool(object):
     """ Base class for all modtool command classes. """
     def __init__(self):
@@ -77,15 +81,13 @@ class ModTool(object):
         (options, self.args) = self.parser.parse_args()
         self._dir = options.directory
         if not self._check_directory(self._dir):
-            print "No GNU Radio module found in the given directory. Quitting."
-            sys.exit(1)
+            raise ModToolException('No GNU Radio module found in the given directory.')
         if options.module_name is not None:
             self._info['modname'] = options.module_name
         else:
             self._info['modname'] = get_modname()
         if self._info['modname'] is None:
-            print "No GNU Radio module found in the given directory. Quitting."
-            sys.exit(1)
+            raise ModToolException('No GNU Radio module found in the given directory.')
         print "GNU Radio module name identified: " + self._info['modname']
         if self._info['version'] == '36' and os.path.isdir(os.path.join('include', self._info['modname'])):
             self._info['version'] = '37'

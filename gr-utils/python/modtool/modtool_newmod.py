@@ -25,7 +25,7 @@ import os
 import re
 from optparse import OptionGroup
 from gnuradio import gr
-from modtool_base import ModTool
+from modtool_base import ModTool, ModToolException
 
 class ModToolNewModule(ModTool):
     """ Create a new out-of-tree module """
@@ -53,8 +53,7 @@ class ModToolNewModule(ModTool):
             else:
                 self._info['modname'] = raw_input('Name of the new module: ')
         if not re.match('[a-zA-Z0-9_]+', self._info['modname']):
-            print 'Invalid module name.'
-            exit(2)
+            raise ModToolException('Invalid module name.')
         self._dir = options.directory
         if self._dir == '.':
             self._dir = './gr-%s' % self._info['modname']
@@ -63,14 +62,12 @@ class ModToolNewModule(ModTool):
         except OSError:
             pass # This is what should happen
         else:
-            print 'The given directory exists.'
-            exit(2)
+            raise ModToolException('The given directory exists.')
         if options.srcdir is None:
             options.srcdir = '/usr/local/share/gnuradio/modtool/gr-newmod'
         self._srcdir = gr.prefs().get_string('modtool', 'newmod_path', options.srcdir)
         if not os.path.isdir(self._srcdir):
-            print 'Error: Could not find gr-newmod source dir.'
-            exit(2)
+            raise ModToolException('Could not find gr-newmod source dir.')
 
     def run(self):
         """
@@ -83,9 +80,7 @@ class ModToolNewModule(ModTool):
             shutil.copytree(self._srcdir, self._dir)
             os.chdir(self._dir)
         except OSError:
-            print 'Failed.'
-            print 'Could not create directory %s. Quitting.' % self._dir
-            exit(2)
+            raise ModToolException('Could not create directory %s.' % self._dir)
         for root, dirs, files in os.walk('.'):
             for filename in files:
                 f = os.path.join(root, filename)

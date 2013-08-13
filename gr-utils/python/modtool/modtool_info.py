@@ -23,7 +23,7 @@
 import os
 from optparse import OptionGroup
 
-from modtool_base import ModTool
+from modtool_base import ModTool, ModToolException
 from util_functions import get_modname
 
 class ModToolInfo(ModTool):
@@ -54,19 +54,11 @@ class ModToolInfo(ModTool):
         mod_info = {}
         mod_info['base_dir'] = self._get_base_dir(self.options.directory)
         if mod_info['base_dir'] is None:
-            if self.options.python_readable:
-                print '{}'
-            else:
-                print "No module found."
-            exit(1)
+            raise ModToolException('{}' if self.options.python_readable else "No module found.")
         os.chdir(mod_info['base_dir'])
         mod_info['modname'] = get_modname()
         if mod_info['modname'] is None:
-            if self.options.python_readable:
-                print '{}'
-            else:
-                print "No module found."
-            exit(1)
+            raise ModToolException('{}' if self.options.python_readable else "No module found.")
         if self._info['version'] == '36' and os.path.isdir(os.path.join('include', mod_info['modname'])):
             self._info['version'] = '37'
         mod_info['version'] = self._info['version']

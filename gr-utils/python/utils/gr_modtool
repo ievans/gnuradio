@@ -32,8 +32,13 @@ def main():
         print 'Usage:' + templates.Templates['usage']
         exit(2)
     modtool = cmd_dict[command]()
-    modtool.setup()
-    modtool.run()
+    try:
+        modtool.setup()
+        modtool.run()
+
+    except ModToolException as err:
+        print >> sys.stderr, err
+        exit(1)
 
 if __name__ == '__main__':
     try:

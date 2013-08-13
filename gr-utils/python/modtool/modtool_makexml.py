@@ -26,7 +26,7 @@ import re
 import glob
 from optparse import OptionGroup
 
-from modtool_base import ModTool
+from modtool_base import ModTool, ModToolException
 from parser_cc_block import ParserCCBlock
 from grc_xml_generator import GRCXMLGenerator
 from cmakefile_editor import CMakeFileEditor
@@ -152,7 +152,7 @@ class ModToolMakeXML(ModTool):
                                    _type_translate
                                   )
         except IOError:
-            print "Can't open some of the files necessary to parse %s." % fname_cc
-            sys.exit(1)
+            raise ModToolException("Can't open some of the files necessary to parse %s." % fname_cc)
+
         return (parser.read_params(), parser.read_io_signature(), blockname)
 
