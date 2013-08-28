@@ -29,8 +29,8 @@ from util_functions import get_modname
 from templates import Templates
 
 
-class ModToolException(Exception):
-    """ Standard exception for modtool. """
+class ModToolException(BaseException):
+    """ Standard exception for modtool classes. """
     pass
 
 class ModTool(object):
