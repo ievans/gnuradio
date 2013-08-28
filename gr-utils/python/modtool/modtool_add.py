@@ -42,6 +42,7 @@ class ModToolAdd(ModTool):
         self._add_cc_qa = False
         self._add_py_qa = False
         self._skip_cmakefiles = False
+        self._license_file = None
 
     def setup_parser(self):
         parser = ModTool.setup_parser(self)
@@ -63,9 +64,9 @@ class ModToolAdd(ModTool):
         parser.add_option_group(ogroup)
         return parser
 
-    def setup(self):
-        ModTool.setup(self)
-        options = self.options
+    def setup(self, options, args):
+        ModTool.setup(self, options, args)
+
         self._info['blocktype'] = options.block_type
         if self._info['blocktype'] is None:
             while self._info['blocktype'] not in self._block_types:
@@ -83,8 +84,8 @@ class ModToolAdd(ModTool):
             raise ModToolException('Missing or skipping relevant subdir.')
 
         if self._info['blockname'] is None:
-            if len(self.args) >= 2:
-                self._info['blockname'] = self.args[1]
+            if len(args) >= 2:
+                self._info['blockname'] = args[1]
             else:
                 self._info['blockname'] = raw_input("Enter name of block/code (without module name prefix): ")
         if not re.match('[a-zA-Z0-9_]+', self._info['blockname']):
@@ -111,6 +112,7 @@ class ModToolAdd(ModTool):
             print "Warning: Autotools modules are not supported. ",
             print "Files will be created, but Makefiles will not be edited."
             self._skip_cmakefiles = True
+        self._license_file = options.license_file
 
 
     def setup_choose_license(self):
@@ -119,9 +121,9 @@ class ModToolAdd(ModTool):
         2) The contents of the file LICENSE or LICENCE in the modules
            top directory
         3) The default license. """
-        if self.options.license_file is not None \
-            and os.path.isfile(self.options.license_file):
-            return open(self.options.license_file).read()
+        if self._license_file is not None \
+            and os.path.isfile(self._license_file):
+            return open(self._license_file).read()
         elif os.path.isfile('LICENSE'):
             return open('LICENSE').read()
         elif os.path.isfile('LICENCE'):

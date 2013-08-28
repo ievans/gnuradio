@@ -48,13 +48,12 @@ class ModToolInfo(ModTool):
         parser.add_option_group(ogroup)
         return parser
 
-    def setup(self):
+    def setup(self, options, args):
         # Won't call parent's setup(), because that's too chatty
-        (self.options, self.args) = self.parser.parse_args()
 
-        self._directory = self.options.directory
-        self._python_readable = self.options.python_readable
-        self._suggested_dirs = self.options.suggested_dirs
+        self._directory = options.directory
+        self._python_readable = options.python_readable
+        self._suggested_dirs = options.suggested_dirs
 
     def run(self):
         """ Go, go, go! """

@@ -33,7 +33,8 @@ def main():
         exit(2)
     modtool = cmd_dict[command]()
     try:
-        modtool.setup()
+        (options, args) = modtool.parser.parse_args()
+        modtool.setup(options, args)
         modtool.run()
 
     except ModToolException as err:

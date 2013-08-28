@@ -47,7 +47,7 @@ class ModToolHelp(ModTool):
     def __init__(self):
         ModTool.__init__(self)
 
-    def setup(self):
+    def setup(self, options, args):
         pass
 
     def run(self):

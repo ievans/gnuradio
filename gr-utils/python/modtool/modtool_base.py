@@ -45,8 +45,6 @@ class ModTool(object):
             self._has_subdirs[subdir] = False
             self._skip_subdirs[subdir] = False
         self.parser = self.setup_parser()
-        self.args = None
-        self.options = None
         self._dir = None
 
     def setup_parser(self):
@@ -76,9 +74,8 @@ class ModTool(object):
         parser.add_option_group(ogroup)
         return parser
 
-    def setup(self):
+    def setup(self, options, args):
         """ Initialise all internal variables, such as the module name etc. """
-        (options, self.args) = self.parser.parse_args()
         self._dir = options.directory
         if not self._check_directory(self._dir):
             raise ModToolException('No GNU Radio module found in the given directory.')
@@ -100,7 +97,6 @@ class ModTool(object):
         if options.skip_grc or not self._has_subdirs['grc']:
             self._skip_subdirs['grc'] = True
         self._info['blockname'] = options.block_name
-        self.options = options
         self._setup_files()
         self._info['yes'] = options.yes
 

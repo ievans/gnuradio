@@ -44,12 +44,11 @@ class ModToolNewModule(ModTool):
         parser.add_option_group(ogroup)
         return parser
 
-    def setup(self):
-        (options, self.args) = self.parser.parse_args()
+    def setup(self, options, args):
         self._info['modname'] = options.module_name
         if self._info['modname'] is None:
-            if len(self.args) >= 2:
-                self._info['modname'] = self.args[1]
+            if len(args) >= 2:
+                self._info['modname'] = args[1]
             else:
                 self._info['modname'] = raw_input('Name of the new module: ')
         if not re.match('[a-zA-Z0-9_]+', self._info['modname']):
