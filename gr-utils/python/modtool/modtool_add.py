@@ -41,6 +41,7 @@ class ModToolAdd(ModTool):
         ModTool.__init__(self)
         self._add_cc_qa = False
         self._add_py_qa = False
+        self._skip_cmakefiles = False
 
     def setup_parser(self):
         parser = ModTool.setup_parser(self)
@@ -105,10 +106,11 @@ class ModToolAdd(ModTool):
             self._add_cc_qa = options.add_cpp_qa
             if self._add_cc_qa is None:
                 self._add_cc_qa = ask_yes_no('Add C++ QA code?', not self._add_py_qa)
-        if self._info['version'] == 'autofoo' and not self.options.skip_cmakefiles:
+        self._skip_cmakefiles = options.skip_cmakefiles
+        if self._info['version'] == 'autofoo' and not self._skip_cmakefiles:
             print "Warning: Autotools modules are not supported. ",
             print "Files will be created, but Makefiles will not be edited."
-            self.options.skip_cmakefiles = True
+            self._skip_cmakefiles = True
 
 
     def setup_choose_license(self):
@@ -166,7 +168,7 @@ class ModToolAdd(ModTool):
             fname_qa_cc = 'qa_%s.cc' % self._info['blockname']
             self._write_tpl('qa_cpp', 'lib', fname_qa_cc)
             self._write_tpl('qa_h',   'lib', fname_qa_h)
-            if not self.options.skip_cmakefiles:
+            if not self._skip_cmakefiles:
                 try:
                     append_re_line_sequence(self._file['cmlib'],
                                             '\$\{CMAKE_CURRENT_SOURCE_DIR\}/qa_%s.cc.*\n' % self._info['modname'],
@@ -185,7 +187,7 @@ class ModToolAdd(ModTool):
             " Add C++ QA files for pre-3.7 API (not autotools) "
             fname_qa_cc = 'qa_%s.cc' % self._info['fullblockname']
             self._write_tpl('qa_cpp36', 'lib', fname_qa_cc)
-            if not self.options.skip_cmakefiles:
+            if not self._skip_cmakefiles:
                 open(self._file['cmlib'], 'a').write(
                         str(
                             Cheetah.Template.Template(
@@ -216,7 +218,7 @@ class ModToolAdd(ModTool):
             fname_cc = self._info['fullblockname'] + '.cc'
             self._write_tpl('block_h36',   self._info['includedir'], fname_h)
             self._write_tpl('block_cpp36', 'lib',                    fname_cc)
-        if not self.options.skip_cmakefiles:
+        if not self._skip_cmakefiles:
             ed = CMakeFileEditor(self._file['cmlib'])
             if not ed.append_value('list', fname_cc, to_ignore_start='APPEND %s_sources' % self._info['modname']):
                 ed.append_value('add_library', fname_cc)
@@ -266,7 +268,7 @@ class ModToolAdd(ModTool):
         fname_py_qa = 'qa_' + self._info['blockname'] + '.py'
         self._write_tpl('qa_python', 'python', fname_py_qa)
         os.chmod(os.path.join('python', fname_py_qa), 0755)
-        if self.options.skip_cmakefiles or CMakeFileEditor(self._file['cmpython']).check_for_glob('qa_*.py'):
+        if self._skip_cmakefiles or CMakeFileEditor(self._file['cmpython']).check_for_glob('qa_*.py'):
             return
         print "Editing python/CMakeLists.txt..."
         open(self._file['cmpython'], 'a').write(
@@ -285,7 +287,7 @@ class ModToolAdd(ModTool):
         append_re_line_sequence(self._file['pyinit'],
                                 '(^from.*import.*\n|# import any pure.*\n)',
                                 'from %s import %s' % (self._info['blockname'], self._info['blockname']))
-        if self.options.skip_cmakefiles:
+        if self._skip_cmakefiles:
             return
         ed = CMakeFileEditor(self._file['cmpython'])
         ed.append_value('GR_PYTHON_INSTALL', fname_py, to_ignore_end='DESTINATION[^()]+')
@@ -300,7 +302,7 @@ class ModToolAdd(ModTool):
         fname_grc = self._info['fullblockname'] + '.xml'
         self._write_tpl('grc_xml', 'grc', fname_grc)
         ed = CMakeFileEditor(self._file['cmgrc'], '\n    ')
-        if self.options.skip_cmakefiles or ed.check_for_glob('*.xml'):
+        if self._skip_cmakefiles or ed.check_for_glob('*.xml'):
             return
         print "Editing grc/CMakeLists.txt..."
         ed.append_value('install', fname_grc, to_ignore_end='DESTINATION[^()]+')
