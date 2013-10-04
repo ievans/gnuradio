@@ -50,4 +50,3 @@ class DrawingArea(QGraphicsView):
     def dropEvent(self, event):
         self._dragged_block = None
         event.accept()
-

@@ -7,6 +7,7 @@ from . Element import Element
 from .FlowGraph import FlowGraph
 from .. base import odict
 import Utils
+import PropsDialog
 from Constants import \
     BLOCK_LABEL_PADDING, \
     PORT_SEPARATION, LABEL_SEPARATION, \
@@ -133,3 +134,7 @@ class Block(Element, QGraphicsRectItem):
 
 
         print port.parentItem()
+        
+    def mouseDoubleClickEvent(self, event):
+        print 'double clicked ' + self.get_name()
+        PropsDialog.PropsDialog.run(self)
